@@ -2,15 +2,15 @@ name: "TMS Docker Build"
 description: "Build docker image and push to azurecr"
 inputs:
   tag:
-    description: 'dockee tag'
+    description: 'docker tag'
     required: true
-  azurecr-reqistry:
+  azure-container-registry:
     escription: 'azure cr registry'
     required: true
-  azurecr-username:
+  azure-container-registry-username:
     description: 'azure cr username'
     required: true
-  azurecr-password:
+  azure-container-registry-password:
     description: 'azure cr password'
     required: true
 
@@ -27,7 +27,7 @@ runs:
       shell: bash
     - name: "Docker push"
       run: |
-        docker login -u ${{ inputs.azurecr-username }} -p ${{ inputs.azurecr-password }} ${{ inputs.azurecr-reqistry }}
+        docker login -u ${{ inputs.azure-container-username }} -p ${{ inputs.azure-container-password }} ${{ inputs.azure-container-reqistry }}
         docker tag ${{ github.event.repository.name }}:${{ inputs.tag }} temoprod.azurecr.io/${{ github.event.repository.name }}:latest
         docker tag ${{ github.event.repository.name }}:${{ inputs.tag }} temoprod.azurecr.io/${{ github.event.repository.name }}:${{ inputs.tag }}
         docker push temoprod.azurecr.io/${{ github.event.repository.name }}:latest
