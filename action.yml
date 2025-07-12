@@ -13,6 +13,8 @@ inputs:
   azure-container-registry-password:
     description: 'azure cr password'
     required: true
+  port-container-image-webhook:
+    description: 'webhook to publish container image to Port'
 
 runs:
   using: "composite"
@@ -33,3 +35,8 @@ runs:
         docker push temoprod.azurecr.io/${{ github.event.repository.name }}:latest
         docker push temoprod.azurecr.io/${{ github.event.repository.name }}:${{ inputs.tag }}
       shell: bash
+    - name: "Add container to Port"
+      if: ${{ inputs.port-container-image-webhook != '' }}
+      shell: bash
+      run: |
+        curl -X POST ${{ inputs.port-container-image-webhook }} -H "Content-Type: application/json" -d '{"image_name":"${{ github.event.repository.name }}","tag":"${{ inputs.tag }}"}'
