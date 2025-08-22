@@ -15,6 +15,9 @@ inputs:
     required: true
   port-container-image-webhook:
     description: 'webhook to publish container image to Port'
+  github-token:
+    description: 'github token'
+    required: true
 
 runs:
   using: "composite"
@@ -25,7 +28,7 @@ runs:
       with:
         go-version-file: go.mod
     - name: "Docker build"
-      run: docker build -t ${{ github.event.repository.name }}:${{ inputs.tag }} .
+      run: docker build --build-arg GH_TOKEN=${{ inputs.github-token }} -t ${{ github.event.repository.name }}:${{ inputs.tag }} .
       shell: bash
     - name: "Docker push"
       run: |
