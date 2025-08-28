@@ -28,18 +28,18 @@ runs:
       with:
         go-version-file: go.mod
 
-    - name: Set Docker tag
-        id: set_tag
-        run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            TAG="${{ github.event.release.tag_name }}"
-          else if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            TAG="pr-${{ github.event.pull_request.number }}-${SHORT_SHA}"
-          else
-            TAG="main-${SHORT_SHA}"
-          fi
-          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+    - name: Set Docker tag        
+      run: |
+        SHORT_SHA=$(git rev-parse --short HEAD)
+        if [[ "${{ github.event_name }}" == "release" ]]; then
+          TAG="${{ github.event.release.tag_name }}"
+        else if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          TAG="pr-${{ github.event.pull_request.number }}-${SHORT_SHA}"
+        else
+          TAG="main-${SHORT_SHA}"
+        fi
+        echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+      shell: bash
 
     - name: "Docker build"
       run: docker build --build-arg GH_TOKEN=${{ inputs.github-token }} --build-arg VERSION=${{ env.DOCKER_TAG }} -t ${{ github.event.repository.name }}:${{ env.DOCKER_TAG }} .
