@@ -27,6 +27,20 @@ runs:
       uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
+
+    - name: Set Docker tag
+        id: set_tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TAG="pr-${{ github.event.pull_request.number }}-${SHORT_SHA}"
+          else
+            TAG="main-${SHORT_SHA}"
+          fi
+          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+
     - name: "Docker build"
       run: docker build --build-arg GH_TOKEN=${{ inputs.github-token }} --build-arg VERSION=${{ inputs.tag }} -t ${{ github.event.repository.name }}:${{ inputs.tag }} .
       shell: bash
@@ -34,9 +48,9 @@ runs:
       run: |
         docker login -u ${{ inputs.azure-container-registry-username }} -p ${{ inputs.azure-container-registry-password }} ${{ inputs.azure-container-registry }}
         docker tag ${{ github.event.repository.name }}:${{ inputs.tag }} temoprod.azurecr.io/${{ github.event.repository.name }}:latest
-        docker tag ${{ github.event.repository.name }}:${{ inputs.tag }} temoprod.azurecr.io/${{ github.event.repository.name }}:${{ inputs.tag }}
+        docker tag ${{ github.event.repository.name }}:${{ inputs.tag }} temoprod.azurecr.io/${{ github.event.repository.name }}:${{ env.DOCKER_TAG }}
         docker push temoprod.azurecr.io/${{ github.event.repository.name }}:latest
-        docker push temoprod.azurecr.io/${{ github.event.repository.name }}:${{ inputs.tag }}
+        docker push temoprod.azurecr.io/${{ github.event.repository.name }}:${{ env.DOCKER_TAG }}
       shell: bash
     - name: "Add container to Port"
       if: ${{ inputs.port-container-image-webhook != '' }}
