@@ -33,7 +33,7 @@ runs:
         SHORT_SHA=$(git rev-parse --short HEAD)
         if [[ "${{ github.event_name }}" == "release" ]]; then
           TAG="${{ github.event.release.tag_name }}"
-        else if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+        elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
           TAG="pr-${{ github.event.pull_request.number }}-${SHORT_SHA}"
         else
           TAG="main-${SHORT_SHA}"
