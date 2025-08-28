@@ -28,7 +28,7 @@ runs:
       with:
         go-version-file: go.mod
     - name: "Docker build"
-      run: docker build --build-arg GH_TOKEN=${{ inputs.github-token }} -t ${{ github.event.repository.name }}:${{ inputs.tag }} .
+      run: docker build --build-arg GH_TOKEN=${{ inputs.github-token }} --build-arg VERSION=${{ inputs.tag }} -t ${{ github.event.repository.name }}:${{ inputs.tag }} .
       shell: bash
     - name: "Docker push"
       run: |
